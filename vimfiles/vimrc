@@ -3,41 +3,6 @@ source $VIMRUNTIME/vimrc_example.vim
 
 " Use the internal diff if available.
 " Otherwise use the special 'diffexpr' for Windows.
-if &diffopt !~# 'internal'
-  set diffexpr=MyDiff()
-endif
-function MyDiff()
-  let opt = '-a --binary '
-  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
-  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
-  let arg1 = v:fname_in
-  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
-  let arg1 = substitute(arg1, '!', '\!', 'g')
-  let arg2 = v:fname_new
-  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
-  let arg2 = substitute(arg2, '!', '\!', 'g')
-  let arg3 = v:fname_out
-  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
-  let arg3 = substitute(arg3, '!', '\!', 'g')
-  if $VIMRUNTIME =~ ' '
-    if &sh =~ '\<cmd'
-      if empty(&shellxquote)
-        let l:shxq_sav = ''
-        set shellxquote&
-      endif
-      let cmd = '"' . $VIMRUNTIME . '\diff"'
-    else
-      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
-    endif
-  else
-    let cmd = $VIMRUNTIME . '\diff'
-  endif
-  let cmd = substitute(cmd, '!', '\!', 'g')
-  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3
-  if exists('l:shxq_sav')
-    let &shellxquote=l:shxq_sav
-  endif
-endfunction
 
 filetype on
 "=============================================================
@@ -161,23 +126,46 @@ filetype plugin indent on    " required
 "=============================================================
 "add head info when touch a new file
 "新建.c,.h,.sh,.java,.v文件，自动插入文件头 
-autocmd BufNewFile *.cpp,*.[ch],*.sh,*.java,*.v exec ":call SetTitle()" 
+autocmd BufNewFile *.cpp,*.[ch],*.sh,*.java,*.v,*.py exec ":call SetTitle()" 
 ""定义函数SetTitle，自动插入文件头 
 func SetTitle() 
 	if &filetype == 'sh' 
 		call setline(1, "#!/bin/bash")
 		call append(line("."), "#==========================================================================") 
 		call append(line(".")+1, "#  File Name: ".expand("%")) 
-		call append(line(".")+2, "#  Author: liuchi") 
-		call append(line(".")+3, "#  mail: liuchi@eswin.com") 
-		call append(line(".")+4, "#  Created Time: ".strftime("%c")) 
-		call append(line(".")+5, "#==========================================================================") 
-		call append(line(".")+6, "")
+		call append(line(".")+2, "#  Author: Yidaoliu") 
+		call append(line(".")+3, "#  Mail:") 
+		call append(line(".")+4, "#  Created Time: ".strftime("%Y-%m-%d")) 
+		call append(line(".")+5, "#  Function:") 
+		call append(line(".")+6, "#==========================================================================") 
+		call append(line(".")+7, "")
+  elseif &filetype == 'python' 
+		call setline(1, "#!/usr/bin/python3")
+		call append(line("."), "#==========================================================================") 
+		call append(line(".")+1, "#  File Name: ".expand("%")) 
+		call append(line(".")+2, "#  Author: Yidaoliu") 
+		call append(line(".")+3, "#  Mail:") 
+		call append(line(".")+4, "#  Created Time: ".strftime("%Y-%m-%d")) 
+		call append(line(".")+5, "#  Function:") 
+		call append(line(".")+6, "#==========================================================================") 
+		call append(line(".")+7, "")
+  elseif &filetype == 'verilog' 
+		call setline(1, "//==========================================================================")
+		call append(line("."),   "//  File Name: ".expand("%")) 
+		call append(line(".")+1, "//  Author: Yidaoliu") 
+		call append(line(".")+2, "//  Mail:") 
+		call append(line(".")+3, "//  Date: ".strftime("%Y-%m-%d")) 
+		call append(line(".")+4, "//  Function:") 
+		call append(line(".")+5, "//    ")
+		call append(line(".")+6, "//  History:") 
+		call append(line(".")+7, "//    ".strftime("%Y-%m-%d")."  Initial version") 
+		call append(line(".")+8, "//==========================================================================") 
+		call append(line(".")+9, "")
 	else 
 		call setline(1, "/*************************************************************************") 
 		call append(line("."), "	> File Name: ".expand("%")) 
-		call append(line(".")+1, "	> Author: liuchi") 
-		call append(line(".")+2, "	> Mail: liuchi@eswin.com ") 
+		call append(line(".")+1, "	> Author: Yidaoliu") 
+		call append(line(".")+2, "	> Mail:") 
 		call append(line(".")+3, "	> Created Time: ".strftime("%c")) 
 		call append(line(".")+4, " ************************************************************************/") 
 		call append(line(".")+5, "")
@@ -195,5 +183,5 @@ func SetTitle()
 	"		call append(line(".")+6,"public class ".expand("%"))
 	"		call append(line(".")+7,"")
 	"	endif
-    autocmd BufNewFile * normal G
+    normal G
 endfunc
