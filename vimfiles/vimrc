@@ -52,7 +52,7 @@ colorscheme molokai
 set guifont=Ubuntu\ Mono\ 14    "14
 "=============================================================
 " set windows
-set lines=30 columns=105
+"set lines=30 columns=105
 set noimdisable
 "=============================================================
 set backspace=2            "
@@ -78,11 +78,11 @@ set hlsearch               "
 set incsearch              "
 set ignorecase             "
 "=============================================================
-"´úÂëÉèÖÃ
+"
 syntax enable 	           "
 syntax on                  "
 set ai                     "
-set shiftwidth=4
+set shiftwidth=2
 set showmatch              "
 set guicursor+=a:blinkon0  "
 set autoindent             "
