@@ -13,12 +13,19 @@ import re
 def read_rtl(i_f):
   i_fr = open(i_f, "r")
   for ifl in i_fr.readlines():
-    cmt_lst = 
-    ifl_lst = re.split(r'[\s]+',ifl)
-    if "input" in ifl:
-      print("input: %s" % ifl_lst[1:])
-    elif "output" in ifl:
-      print("output: %s" % ifl_lst[1:])
+    cmt = ifl[ifl.find("//"):]  # comment
+    ctt = ifl[:ifl.find("//")]  # content
+    ifl_lst = re.split(r'[\s]+',ctt)
+    if re.match(r'input', ctt):
+      print(ifl)
+      #print("input: %s" % ifl_lst[1:])
+      if len(ifl_lst[1:]) <= 1:
+        pass#print("%-45s %s" % ('reg', ifl_lst[1]))
+    if re.match(r'output', ctt):
+      print(ifl)
+      #print("output: %s" % ifl_lst[1:])
+      if len(ifl_lst[1:]) <= 1:
+        pass#print("%-45s %s" % ('wire', ifl_lst[1]))
 
 def write_tb(text):
   text_arry = text.split("\n")
