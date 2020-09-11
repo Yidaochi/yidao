@@ -13,6 +13,7 @@ import re
 def read_rtl(i_f):
   i_fr = open(i_f, "r")
   for ifl in i_fr.readlines():
+    cmt_lst = 
     ifl_lst = re.split(r'[\s]+',ifl)
     if "input" in ifl:
       print("input: %s" % ifl_lst[1:])
