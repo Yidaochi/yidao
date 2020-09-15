@@ -12,20 +12,61 @@ import re
 
 def read_rtl(i_f):
   i_fr = open(i_f, "r")
+  inp_lst = []
+  oup_lst = []
+  max_len = 0
+  port_sta_l = 0    # port list start line
+  port_end_l = 0    # port list end line
+  li = 0
   for ifl in i_fr.readlines():
+    li = li + 1
     cmt = ifl[ifl.find("//"):]  # comment
     ctt = ifl[:ifl.find("//")]  # content
-    ifl_lst = re.split(r'[\s]+',ctt)
-    if re.match(r'input', ctt):
-      print(ifl)
-      #print("input: %s" % ifl_lst[1:])
-      if len(ifl_lst[1:]) <= 1:
-        pass#print("%-45s %s" % ('reg', ifl_lst[1]))
-    if re.match(r'output', ctt):
-      print(ifl)
-      #print("output: %s" % ifl_lst[1:])
-      if len(ifl_lst[1:]) <= 1:
-        pass#print("%-45s %s" % ('wire', ifl_lst[1]))
+    # print("'%s'" % ctt)
+    ifl_lst = re.split(r'[\s]+', ctt.strip(" "))
+    # print(ifl_lst)
+    if 'input' == ifl_lst[0]:
+      inp_lst.append(ifl_lst)
+      if len(ifl_lst) >= 3:
+        if max_len < len(ifl_lst[1]):
+          max_len = len(ifl_lst[1])
+    elif 'output' == ifl_lst[0]:
+      oup_lst.append(ifl_lst)
+      if len(ifl_lst) >= 3:
+        if max_len < len(ifl_lst[1]):
+          max_len = len(ifl_lst[1])
+    elif 'module' == ifl_lst[0]:
+      port_sta_l = li
+    elif ');' == 
+
+
+  print('max_len', max_len)
+  reg_lst = []
+  for inp in inp_lst:
+    # print("inp", inp)
+    if len(inp) <= 2:
+      reg_lst.append("%-*s%s" % (5+max_len+1, "reg", inp[1]))
+      # print("%-*s%s" % (5+max_len+1, "reg", inp[1]))
+    elif len(inp) == 3:
+      reg_lst.append("%-5s%-*s%s" % ("reg", max_len+1, inp[1], inp[2]))
+      # print("%-5s%-*s%s" % ("reg", max_len+1, inp[1], inp[2]))
+    else:
+      sig_name = "".join(inp[2:])
+      reg_lst.append("%-5s%-*s%s" % ("reg", max_len+1, inp[1], sig_name))
+      # print("%-5s%-*s%s" % ("reg", max_len+1, inp[1], sig_name))
+  wire_lst = []
+  for oup in oup_lst:
+    # print("oup", oup)
+    if len(inp) <= 2:
+      wire_lst.append("%-*s%s" % (5+max_len+1, "wire", inp[1]))
+      # print("%-*s%s" % (5+max_len+1, "wire", inp[1]))
+    elif len(inp) == 3:
+      wire_lst.append("%-5s%-*s%s" % ("wire", max_len+1, inp[1], inp[2]))
+      # print("%-5s%-*s%s" % ("wire", max_len+1, inp[1], inp[2]))
+    else:
+      sig_name = "".join(inp[2:])
+      wire_lst.append("%-5s%-*s%s" % ("wire", max_len+1, inp[1], sig_name))
+      # print("%-5s%-*s%s" % ("wire", max_len+1, inp[1], sig_name))
 
 def write_tb(text):
   text_arry = text.split("\n")
