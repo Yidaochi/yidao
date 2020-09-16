@@ -96,14 +96,15 @@ def read_rtl(i_f):
   for p_i in range(len(port_lst)):
     p = port_lst[p_i]
     if p_i != len(port_lst) - 1:
-      tie_line_lst.append(".%-*s(%-*s)," % (sig_max_len+4, p, sig_max_len+4, p))
+      tie_line_lst.append("  .%-*s(%-*s)," % (sig_max_len+4, p, sig_max_len+4, p))
     else:
-      tie_line_lst.append(".%-*s(%-*s)" % (sig_max_len+4, p, sig_max_len+4, p))
+      tie_line_lst.append("  .%-*s(%-*s)" % (sig_max_len+4, p, sig_max_len+4, p))
   tie_line_lst.append(");")
 
   return reg_lst, wire_lst, tie_line_lst
 
 def write_tb(tb_f_name, text, reg_lst, wire_lst, tie_line_lst):
+  tb_fw = open(tb_f_name, "w")
   tb_name = tb_f_name.split('.')[0]
   #========== tb header start ==========#
   print("//==========================================================================") 
@@ -116,10 +117,39 @@ def write_tb(tb_f_name, text, reg_lst, wire_lst, tie_line_lst):
   print("//  History:")
   print("//    %s  Initial version" % (time.strftime("%Y-%m-%d", time.localtime())))
   print("//==========================================================================")
+  tb_fw.write("//==========================================================================\n") 
+  tb_fw.write("//  File Name: %s\n" % (tb_f_name))
+  tb_fw.write("//  Author: %s\n" % (Author_name))
+  tb_fw.write("//  Mail: %s\n" % (Mail))
+  tb_fw.write("//  Date: %s\n" % (time.strftime("%Y-%m-%d", time.localtime())))
+  tb_fw.write("//  Function:\n")
+  tb_fw.write("//    \n")
+  tb_fw.write("//  History:\n")
+  tb_fw.write("//    %s  Initial version\n" % (time.strftime("%Y-%m-%d", time.localtime())))
+  tb_fw.write("//==========================================================================\n")
   #========== tb header end   ==========#
+  #========== tb content start   ==========#
   text_arry = text.split("\n")
-  for l in text_arry:
-    print("l:'%s'" % l)
+  for tl in text_arry:
+    if re.match(r"module", tl):
+      # print(tl)
+      tb_fw.write("module %s;\n" % tb_name)
+    elif "this line script start insert" in tl:
+      # print("tl:'%s'" % tl)
+      tb_fw.write("\n")
+      for ipt in reg_lst:
+        tb_fw.write("  %s\n" % ipt)
+      tb_fw.write("\n")
+      for opt in wire_lst:
+        tb_fw.write("  %s\n" % opt)
+      tb_fw.write("\n")
+      for tie_line in tie_line_lst:
+        tb_fw.write("  %s\n" % tie_line)
+      tb_fw.write("\n")
+    else:
+      tb_fw.write("%s\n" % tl)
+  #========== tb content end   ==========#
+  tb_fw.close()
 
 
 def tb_template():
@@ -130,27 +160,25 @@ module template_tb;
   parameter DUMP_FSDB = 1;
   parameter END_TIME = 1500;
   parameter CLK_PERIOD = 10;
+  //this line script start insert
   
   // clock
   always
     #(CLK_PERIOD/2.0)  clk = ~clk;
-  initial
-  begin
+  initial begin
     clk  = 1'b1;
     rst_n   = 1'b1;
     #CLK_PERIOD rst_n = 1'b0;
     #CLK_PERIOD rst_n = 1'b1;
   end
 
-  initial
-  begin
-    if (DUMP_FSDB == 1)
-    begin
+  //dump wave
+  initial begin
+    if (DUMP_FSDB == 1) begin
       $fsdbDumpfile("test.fsdb");
       $fsdbDumpvars("+all");
     end
-    if (END_TIME != 0)
-    begin
+    if (END_TIME != 0) begin
       #END_TIME;
       $finish;
     end
