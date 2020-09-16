@@ -23,11 +23,14 @@ def read_rtl(i_f):
   i_fr_l = i_fr.readlines()
   inp_lst = []
   oup_lst = []
-  wth_max_len = 0   # width max len
-  port_sta_l = 0    # port list start line
-  port_end_l = 0    # port list end line
+  param_def_lst = []          # parameter define
+  port_param_lst = []     # parameter name from ports
+  wth_max_len = 0         # width max len
+  port_sta_l = 0          # port list start line
+  port_end_l = 0          # port list end line
   port_end_flag = 0
   li = 0
+  func_flag = 0
   for ifl in i_fr_l:
     li = li + 1
     cmt = ifl[ifl.find("//"):]  # comment
@@ -35,25 +38,54 @@ def read_rtl(i_f):
     # print("'%s'" % ctt)
     ifl_lst = re.split(r'[\s]+', ctt.strip(" "))
     # print(ifl_lst)
-    if 'input' == ifl_lst[0]:
-      ifl.index()
-      inp_lst.append(ifl_lst)
-      if len(ifl_lst) >= 3:
-        if wth_max_len < len(ifl_lst[1]):
-          wth_max_len = len(ifl_lst[1])
-    elif 'output' == ifl_lst[0]:
-      oup_lst.append(ifl_lst)
-      if len(ifl_lst) >= 3:
-        if wth_max_len < len(ifl_lst[1]):
-          wth_max_len = len(ifl_lst[1])
-    elif 'module' == ifl_lst[0]:
-      port_sta_l = li
-    elif ');' == ifl_lst[0] and port_end_flag == 0:
-      port_end_l = li
-      port_end_flag = 1
+    if func_flag == 0:
+      if 'function' == ifl_lst[0]:      # from function don't collect input/output ports
+        func_flag = 1
+      elif 'parameter' == ifl_lst[0] or 'localparam' == ifl_lst[0]:
+        param_def_lst.append(ifl.strip(' '))
+      elif 'input' == ifl_lst[0]:
+        inp_lst.append(ifl_lst)
+        if len(ifl_lst) >= 3:           # len greater than 3 means it contains bit width information
+          width_info = re.split(r'[\[\-\:\]]', ifl_lst[1])
+          for wi in width_info:
+            if wi == '' or wi.isdigit():
+              pass
+            elif wi not in port_param_lst:
+              port_param_lst.append(wi)
+          if wth_max_len < len(ifl_lst[1]):
+            wth_max_len = len(ifl_lst[1])
+      elif 'output' == ifl_lst[0]:
+        oup_lst.append(ifl_lst)
+        if len(ifl_lst) >= 3:
+          width_info = re.split(r'[\[\-\:\]]', ifl_lst[1])
+          for wi in width_info:
+            if wi == '' or wi.isdigit():
+              pass
+            elif wi not in port_param_lst:
+              port_param_lst.append(wi)
+          if wth_max_len < len(ifl_lst[1]):
+            wth_max_len = len(ifl_lst[1])
+      elif 'module' == ifl_lst[0]:
+        port_sta_l = li
+      elif ');' == ifl_lst[0] and port_end_flag == 0:
+        port_end_l = li
+        port_end_flag = 1
+  
+  param_lst = []
+  for ppl in port_param_lst:
+    ppl_find_flag = 0
+    for pdl in param_def_lst:
+      if ppl in pdl:
+        ppl_find_flag = 1
+        param_lst.append(pdl)
+    if ppl_find_flag == 0:
+      print("[info] This parameter: \"%s\" is not be defined" % ppl)
+      param_lst.append("parameter %s =" % ppl)
+        
   print('port_sta_l:', port_sta_l)
   print('port_end_l:', port_end_l)
   print('wth_max_len:', wth_max_len)
+
   reg_lst = []
   for inp in inp_lst:
     # print("inp", inp)
@@ -67,19 +99,20 @@ def read_rtl(i_f):
       sig_name = "".join(inp[2:])
       reg_lst.append("%-5s%-*s%s" % ("reg", wth_max_len+1, inp[1], sig_name))
       # print("%-5s%-*s%s" % ("reg", wth_max_len+1, inp[1], sig_name))
+
   wire_lst = []
   for oup in oup_lst:
     # print("oup", oup)
-    if len(inp) <= 2:
-      wire_lst.append("%-*s%s" % (5+wth_max_len+1, "wire", inp[1]))
-      # print("%-*s%s" % (5+wth_max_len+1, "wire", inp[1]))
-    elif len(inp) == 3:
-      wire_lst.append("%-5s%-*s%s" % ("wire", wth_max_len+1, inp[1], inp[2]))
-      # print("%-5s%-*s%s" % ("wire", wth_max_len+1, inp[1], inp[2]))
+    if len(oup) <= 2:
+      wire_lst.append("%-*s%s" % (5+wth_max_len+1, "wire", oup[1]))
+      # print("%-*s%s" % (5+wth_max_len+1, "wire", oup[1]))
+    elif len(oup) == 3:
+      wire_lst.append("%-5s%-*s%s" % ("wire", wth_max_len+1, oup[1], oup[2]))
+      # print("%-5s%-*s%s" % ("wire", wth_max_len+1, oup[1], oup[2]))
     else:
-      sig_name = "".join(inp[2:])
-      wire_lst.append("%-5s%-*s%s" % ("wire", wth_max_len+1, inp[1], sig_name))
-      # print("%-5s%-*s%s" % ("wire", wth_max_len+1, inp[1], sig_name))
+      sig_name = "".join(oup[2:])
+      wire_lst.append("%-5s%-*s%s" % ("wire", wth_max_len+1, oup[1], sig_name))
+      # print("%-5s%-*s%s" % ("wire", wth_max_len+1, oup[1], sig_name))
 
   sig_max_len = 0   # signal max len
   port_lst = []
@@ -91,6 +124,7 @@ def read_rtl(i_f):
       port_lst.append(ifl_lst[0])
     if len(ifl_lst[0]) > sig_max_len:
       sig_max_len = len(ifl_lst[0])
+
   tie_line_lst = []
   tie_line_lst.append("%s %s_inst(" % (m_name, m_name))
   for p_i in range(len(port_lst)):
@@ -101,10 +135,12 @@ def read_rtl(i_f):
       tie_line_lst.append("  .%-*s(%-*s)" % (sig_max_len+4, p, sig_max_len+4, p))
   tie_line_lst.append(");")
   #   need add comparison between port list num and io port num in file content, for function case 
+  if len(port_lst) != len(reg_lst) + len(wire_lst):
+    print("[info] !!! The number of signals declared in port list is not equal to the number in content, Please check your rtl design !!!")
 
-  return reg_lst, wire_lst, tie_line_lst
+  return param_lst, reg_lst, wire_lst, tie_line_lst
 
-def write_tb(tb_f_name, text, reg_lst, wire_lst, tie_line_lst):
+def write_tb(tb_f_name, text, param_lst, reg_lst, wire_lst, tie_line_lst):
   tb_fw = open(tb_f_name, "w")
   tb_name = tb_f_name.split('.')[0]
   #========== tb header start ==========#
@@ -137,6 +173,8 @@ def write_tb(tb_f_name, text, reg_lst, wire_lst, tie_line_lst):
       tb_fw.write("module %s;\n" % tb_name)
     elif "this line script start insert" in tl:
       # print("tl:'%s'" % tl)
+      for pl in param_lst:
+        tb_fw.write("  %s\n" % pl)
       tb_fw.write("\n")
       for ipt in reg_lst:
         tb_fw.write("  %s\n" % ipt)
@@ -192,9 +230,9 @@ def main():
   i_f = args.i
   tb_f_name = args.o
 
-  reg_lst, wire_lst, tie_line_lst = read_rtl(i_f)
+  param_lst, reg_lst, wire_lst, tie_line_lst = read_rtl(i_f)
   text = tb_template()
-  write_tb(tb_f_name, text, reg_lst, wire_lst, tie_line_lst)
+  write_tb(tb_f_name, text, param_lst, reg_lst, wire_lst, tie_line_lst)
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(
