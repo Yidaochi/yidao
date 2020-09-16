@@ -28,7 +28,6 @@ def read_rtl(i_f):
   port_end_l = 0    # port list end line
   port_end_flag = 0
   li = 0
-  #   need add comparison between port list num and io port num in file content 
   for ifl in i_fr_l:
     li = li + 1
     cmt = ifl[ifl.find("//"):]  # comment
@@ -37,6 +36,7 @@ def read_rtl(i_f):
     ifl_lst = re.split(r'[\s]+', ctt.strip(" "))
     # print(ifl_lst)
     if 'input' == ifl_lst[0]:
+      ifl.index()
       inp_lst.append(ifl_lst)
       if len(ifl_lst) >= 3:
         if wth_max_len < len(ifl_lst[1]):
@@ -100,6 +100,7 @@ def read_rtl(i_f):
     else:
       tie_line_lst.append("  .%-*s(%-*s)" % (sig_max_len+4, p, sig_max_len+4, p))
   tie_line_lst.append(");")
+  #   need add comparison between port list num and io port num in file content, for function case 
 
   return reg_lst, wire_lst, tie_line_lst
 
