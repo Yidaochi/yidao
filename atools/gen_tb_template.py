@@ -149,10 +149,11 @@ def read_rtl(i_f):
 
   return tb_param_lst, reg_lst, wire_lst, tie_line_lst
 
-def write_tb(tb_f_name, text, tb_param_lst, reg_lst, wire_lst, tie_line_lst):
+def write_tb(tb_pf_name, text, tb_param_lst, reg_lst, wire_lst, tie_line_lst):
   print("")
-  print("[info] Write tb file:", tb_f_name)
-  tb_fw = open(tb_f_name, "w")
+  print("[info] Write tb file:", tb_pf_name)
+  tb_fw = open(tb_pf_name, "w")
+  tb_f_name = tb_pf_name[tb_pf_name.rfind("/")+1:]
   tb_name = tb_f_name.split('.')[0]
   #========== tb header start ==========#
   print("//==========================================================================") 
@@ -239,16 +240,17 @@ endmodule
 
 def main():
   i_f = args.i
-  tb_f_name = args.o
+  tb_pf_name = args.o    # path/file name
 
   tb_param_lst, reg_lst, wire_lst, tie_line_lst = read_rtl(i_f)
   text = tb_template()
-  write_tb(tb_f_name, text, tb_param_lst, reg_lst, wire_lst, tie_line_lst)
+  write_tb(tb_pf_name, text, tb_param_lst, reg_lst, wire_lst, tie_line_lst)
+  print("[info] ========>> Finish <<=======")
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(
       description="This script for generating tb template",
-      epilog="eg: ./gen_tb_header.py -f ../../works/counter.v -o ../tb/counter_tb3.v")
+      epilog="eg: ./gen_tb_header.py -i ../../works/counter.v -o ../tb/counter_tb3.v")
   parser.add_argument("-i",type=str, help="Your rtl file: <path>/*.v")
   parser.add_argument("-o",type=str, help="Output file name: <path>/*.v")
   args = parser.parse_args()
