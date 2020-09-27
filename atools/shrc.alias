@@ -1,0 +1,14 @@
+#some alias for personal use
+
+alias py='python3'
+alias ..='cd ..'
+alias ...='cd ../../'
+alias h='history'
+alias se='source'
+alias g='gvim'
+alias wk='cd ~/work'
+
+#.cshrc define:
+#prompt setting
+set prompt="%{\033]0;%c3\007%}^-^[%/]\n^-^[%n@%m]>> "
+alias cd 'cd \!*; set prompt="%{\033]0;%c3\007%}^-^[%/]\n^-^[%n@%m]>> "'
