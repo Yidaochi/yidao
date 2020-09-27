@@ -223,7 +223,7 @@ module template_tb;
     #CLK_PERIOD rst_n = 1'b1;
   end
 
-  //dump wave
+  // dump wave
   initial begin
     if (DUMP_FSDB == 1) begin
       $fsdbDumpfile("test.fsdb");

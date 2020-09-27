@@ -6,5 +6,5 @@
 #  only for csh
 #==========================================================================
 
-#add line in your cshrc: alias set_title="echo -e "\033]0;$1\007"" 
+#add line in your cshrc: alias settitle="echo -e "\033]0;$1\007"" 
 echo -e "\033]0;$1\007"

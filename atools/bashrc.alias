@@ -1,9 +1,0 @@
-#some alias for personal use
-
-alias py='python3'
-alias ..='cd ..'
-alias ...='cd ../../'
-alias h='history'
-alias se='source'
-alias g='gvim'
-alias dt='cd /home/ly/Desktop'
