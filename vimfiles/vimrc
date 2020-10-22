@@ -36,7 +36,8 @@ set guioptions-=T          "
 set tabstop=2	           "set tab=2space
 set expandtab
 set autoread
-set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [POS=%l,%v][%p%%]\ %{strftime(\"%d/%m/%y\ -\ %H:%M\")}\ %{ALEGetStatusLine()}
+set statusline=[%F]%r%m=[Line:%l/%L,Col:%c]
+set laststatus=2
 "=============================================================
 "
 set hlsearch               "
