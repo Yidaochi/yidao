@@ -141,7 +141,7 @@ func SetTitle()
 		call append(line(".")+6, "#==========================================================================") 
 		call append(line(".")+7, "")
   elseif &filetype == 'python' 
-		call setline(1, "#!/usr/bin/python3")
+		call setline(1, "#!/usr/bin/env python3")
 		call append(line("."), "#==========================================================================") 
 		call append(line(".")+1, "#  File Name: ".expand("%")) 
 		call append(line(".")+2, "#  Author: Yidaoliu") 
