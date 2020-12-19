@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 """
 @File Name :  invoice_assistant.py
-@Author    :  Liu Chi
-@Email     :  liuchi@eswin.com
+@Author    :  Yidaoliu
+@Email     :  bazhahei@hei.com
 @Time      :  2020-11-26
-@Desc      :  
+@Desc      :  invoice assistant
 """
 import os
 import time
